@@ -62,26 +62,14 @@ fun GostBean.buildGostArgs(port: Int): String {
                     }
 
                     if (!resolvedIp.isNullOrBlank()) {
-                        // Set the serverAddress for NekoBox's direct routing bypass
-                        serverAddress = resolvedIp
-                        
-                        // Force add to the bypass routing lists so NekoBox will bypass it
-                        try {
-                            io.nekohasekai.sagernet.fmt.domainListDNSDirectForce.add("full:$resolvedIp")
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
+                        // Keep serverAddress as the original domain (host) so ConfigBuilder automatically adds it to direct/bypass list
+                        serverAddress = originalHost
                         
                         // Replace the host in command args to prevent Gost from doing DNS resolution
                         resolvedArgs = resolvedArgs.replace(originalHost, resolvedIp)
                     } else {
-                        // Fallback to original host for NekoBox's direct routing logic
+                        // Fallback to original host
                         serverAddress = originalHost
-                        try {
-                            io.nekohasekai.sagernet.fmt.domainListDNSDirectForce.add("full:$originalHost")
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
                     }
                 }
             }
