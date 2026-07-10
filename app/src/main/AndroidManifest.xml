@@ -293,6 +293,11 @@
             </intent-filter>
         </service>
 
+        <activity
+            android:name=".ui.profile.GostSettingsActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize" />
+
         <service
             android:name="io.nekohasekai.sagernet.bg.TileService"
             android:exported="true"

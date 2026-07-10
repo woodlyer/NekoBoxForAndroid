@@ -8,6 +8,8 @@ import io.nekohasekai.sagernet.database.DataStore
 import io.nekohasekai.sagernet.database.ProxyEntity
 import io.nekohasekai.sagernet.fmt.ConfigBuildResult
 import io.nekohasekai.sagernet.fmt.buildConfig
+import io.nekohasekai.sagernet.fmt.gost.GostBean
+import io.nekohasekai.sagernet.fmt.gost.buildGostArgs
 import io.nekohasekai.sagernet.fmt.hysteria.HysteriaBean
 import io.nekohasekai.sagernet.fmt.hysteria.buildHysteria1Config
 import io.nekohasekai.sagernet.fmt.mieru.MieruBean
@@ -82,6 +84,11 @@ abstract class BoxInstance(
                                 cacheFiles.add(this)
                             }
                         }
+                    }
+
+                    is GostBean -> {
+                        initPlugin("gost-plugin")
+                        pluginConfigs[port] = profile.type to bean.buildGostArgs(port)
                     }
                 }
             }
@@ -193,6 +200,17 @@ abstract class BoxInstance(
                             commands.addAll(0, listOf("su", "-c"))
                         }
 
+                        processes.start(commands)
+                    }
+
+                    bean is GostBean -> {
+                        val commands = mutableListOf(
+                            initPlugin("gost-plugin").path
+                        )
+                        val argsArray = org.json.JSONArray(config)
+                        for (i in 0 until argsArray.length()) {
+                            commands.add(argsArray.getString(i))
+                        }
                         processes.start(commands)
                     }
                 }

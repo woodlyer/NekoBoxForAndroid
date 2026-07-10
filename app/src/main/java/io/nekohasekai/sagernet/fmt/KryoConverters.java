@@ -10,6 +10,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import io.nekohasekai.sagernet.database.SubscriptionBean;
+import io.nekohasekai.sagernet.fmt.gost.GostBean;
 import io.nekohasekai.sagernet.fmt.http.HttpBean;
 import io.nekohasekai.sagernet.fmt.hysteria.HysteriaBean;
 import io.nekohasekai.sagernet.fmt.internal.ChainBean;
@@ -149,6 +150,11 @@ public class KryoConverters {
         return deserialize(new AnyTLSBean(), bytes);
     }
 
+    @TypeConverter
+    public static GostBean gostDeserialize(byte[] bytes) {
+        if (JavaUtil.isEmpty(bytes)) return null;
+        return deserialize(new GostBean(), bytes);
+    }
 
     @TypeConverter
     public static ChainBean chainDeserialize(byte[] bytes) {

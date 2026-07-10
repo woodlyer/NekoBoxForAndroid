@@ -44,6 +44,16 @@ enum class PluginEntry(
             downloadLink = "https://github.com/MatsuriDayo/plugins/releases?q=Hysteria"
         )
     ),
+    GostProxy(
+        "gost-plugin",
+        SagerNet.application.getString(R.string.action_gost),
+        "moe.matsuri.exe.gost",
+        DownloadSource(
+            playStore = false,
+            fdroid = false,
+            downloadLink = "https://github.com/MatsuriDayo/plugins/releases?q=Gost"
+        )
+    ),
     ;
 
     data class DownloadSource(

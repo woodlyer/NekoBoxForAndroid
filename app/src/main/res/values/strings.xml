@@ -296,6 +296,10 @@
     <string name="proxy_cat">Server Settings</string>
     <string name="ss_cat">Shadowsocks Settings</string>
     <string name="unsaved_changes_prompt">Changes not saved. Do you want to save?</string>
+    <string name="fmt_ssh">SSH</string>
+    <string name="fmt_tuic">TUIC</string>
+    <string name="fmt_gost">Gost</string>
+    <string name="fmt_mieru">Mieru</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="apply">Apply</string>

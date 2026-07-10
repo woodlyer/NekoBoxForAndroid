@@ -39,6 +39,8 @@ import moe.matsuri.nb4a.proxy.config.ConfigBean
 import moe.matsuri.nb4a.proxy.config.ConfigSettingActivity
 import moe.matsuri.nb4a.proxy.neko.*
 import moe.matsuri.nb4a.proxy.shadowtls.ShadowTLSSettingsActivity
+import io.nekohasekai.sagernet.fmt.gost.*
+import io.nekohasekai.sagernet.ui.profile.GostSettingsActivity
 
 @Entity(
     tableName = "proxy_entities", indices = [Index("groupId", name = "groupId")]
@@ -71,6 +73,7 @@ data class ProxyEntity(
     var chainBean: ChainBean? = null,
     var nekoBean: NekoBean? = null,
     var configBean: ConfigBean? = null,
+    var gostBean: GostBean? = null,
 ) : Serializable() {
 
     companion object {
@@ -90,6 +93,7 @@ data class ProxyEntity(
         const val TYPE_TUIC = 20
         const val TYPE_MIERU = 21
         const val TYPE_ANYTLS = 22
+        const val TYPE_GOST = 23
 
         const val TYPE_CONFIG = 998
         const val TYPE_NEKO = 999
@@ -177,6 +181,7 @@ data class ProxyEntity(
             TYPE_CHAIN -> chainBean = KryoConverters.chainDeserialize(byteArray)
             TYPE_NEKO -> nekoBean = KryoConverters.nekoDeserialize(byteArray)
             TYPE_CONFIG -> configBean = KryoConverters.configDeserialize(byteArray)
+            TYPE_GOST -> gostBean = KryoConverters.gostDeserialize(byteArray)
         }
     }
 
@@ -198,6 +203,7 @@ data class ProxyEntity(
         TYPE_CHAIN -> chainName
         TYPE_NEKO -> nekoBean!!.displayType()
         TYPE_CONFIG -> configBean!!.displayType()
+        TYPE_GOST -> "Gost"
         else -> "Undefined type $type"
     }
 
@@ -223,6 +229,7 @@ data class ProxyEntity(
             TYPE_CHAIN -> chainBean
             TYPE_NEKO -> nekoBean
             TYPE_CONFIG -> configBean
+            TYPE_GOST -> gostBean
             else -> error("Undefined type $type")
         } ?: error("Null ${displayType()} profile")
     }
@@ -257,6 +264,7 @@ data class ProxyEntity(
             is HysteriaBean -> toUri()
             is TuicBean -> toUri()
             is AnyTLSBean -> toUri()
+            is GostBean -> toUri()
             is NekoBean -> ""
             else -> toUniversalLink()
         }
@@ -296,6 +304,11 @@ data class ProxyEntity(
                                 append("\n\n")
                                 append(bean.buildHysteria1Config(port, null))
                             }
+
+                            is GostBean -> {
+                                append("\n\n")
+                                append(bean.buildGostArgs(port))
+                            }
                         }
                     }
                 }
@@ -309,6 +322,7 @@ data class ProxyEntity(
             TYPE_MIERU -> true
             TYPE_NAIVE -> true
             TYPE_HYSTERIA -> !hysteriaBean!!.canUseSingBox()
+            TYPE_GOST -> true
             TYPE_NEKO -> true
             else -> false
         }
@@ -360,6 +374,7 @@ data class ProxyEntity(
         chainBean = null
         configBean = null
         nekoBean = null
+        gostBean = null
 
         when (bean) {
             is SOCKSBean -> {
@@ -446,6 +461,11 @@ data class ProxyEntity(
                 type = TYPE_CONFIG
                 configBean = bean
             }
+            
+            is GostBean -> {
+                type = TYPE_GOST
+                gostBean = bean
+            }
 
             else -> error("Undefined type $type")
         }
@@ -471,6 +491,7 @@ data class ProxyEntity(
                 TYPE_ANYTLS -> AnyTLSSettingsActivity::class.java
                 TYPE_CHAIN -> ChainSettingsActivity::class.java
                 TYPE_CONFIG -> ConfigSettingActivity::class.java
+                TYPE_GOST -> GostSettingsActivity::class.java
                 else -> throw IllegalArgumentException()
             }
         ).apply {
