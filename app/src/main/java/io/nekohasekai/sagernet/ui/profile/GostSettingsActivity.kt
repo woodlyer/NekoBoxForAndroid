@@ -19,7 +19,7 @@ class GostSettingsActivity : ProfileSettingsActivity<GostBean>() {
         DataStore.serverPort = serverPort
         DataStore.serverUsername = username
         DataStore.serverPassword = password
-        DataStore.serverProtocol = proto
+        DataStore.serverProtocol = protocol
         DataStore.serverSNI = sni
         DataStore.serverCertificates = certificates
         DataStore.serverHeaders = extraHeaders
@@ -33,7 +33,7 @@ class GostSettingsActivity : ProfileSettingsActivity<GostBean>() {
         serverPort = DataStore.serverPort
         username = DataStore.serverUsername
         password = DataStore.serverPassword
-        proto = DataStore.serverProtocol
+        protocol = DataStore.serverProtocol
         sni = DataStore.serverSNI
         certificates = DataStore.serverCertificates
         extraHeaders = DataStore.serverHeaders.replace("\r\n", "\n")

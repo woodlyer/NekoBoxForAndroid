@@ -530,4 +530,32 @@
         <item>@string/sniff_override</item>
     </string-array>
 
+    <string-array name="gost_proto_entry">
+        <item>HTTP</item>
+        <item>HTTPS</item>
+        <item>SOCKS4</item>
+        <item>SOCKS4a</item>
+        <item>SOCKS5</item>
+        <item>Shadowsocks</item>
+        <item>KCP</item>
+        <item>QUIC</item>
+        <item>Websocket</item>
+        <item>TLS</item>
+        <item>SSH</item>
+    </string-array>
+
+    <string-array name="gost_proto_value">
+        <item>http</item>
+        <item>https</item>
+        <item>socks4</item>
+        <item>socks4a</item>
+        <item>socks5</item>
+        <item>ss</item>
+        <item>kcp</item>
+        <item>quic</item>
+        <item>ws</item>
+        <item>tls</item>
+        <item>ssh</item>
+    </string-array>
+
 </resources>
