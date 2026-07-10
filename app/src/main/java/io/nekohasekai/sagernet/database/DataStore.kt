@@ -237,6 +237,8 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     var serverConfig by profileCacheStore.string(Key.SERVER_CONFIG)
     var serverCustom by profileCacheStore.string(Key.SERVER_CUSTOM)
     var serverCustomOutbound by profileCacheStore.string(Key.SERVER_CUSTOM_OUTBOUND)
+    var serverCustomArgs by profileCacheStore.string("serverCustomArgs")
+    var serverCustomConfigFileContent by profileCacheStore.string("serverCustomConfigFileContent")
 
     var groupName by profileCacheStore.string(Key.GROUP_NAME)
     var groupType by profileCacheStore.stringToInt(Key.GROUP_TYPE)

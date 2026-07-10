@@ -38,8 +38,18 @@ fun GostBean.buildGostArgs(port: Int): String {
     args.put("$LOCALHOST:$port")
 
     if (customArgs.isNotBlank()) {
+        var resolvedArgs = customArgs
+        if (customConfigFileContent.isNotBlank()) {
+            try {
+                val file = java.io.File(io.nekohasekai.sagernet.SagerNet.application.filesDir, "kcp.json")
+                file.writeText(customConfigFileContent)
+                resolvedArgs = resolvedArgs.replace("kcp.json", file.absolutePath)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
         // Simple space split for custom args, you might want a proper shell parser later
-        customArgs.split("\\s+".toRegex()).forEach { if (it.isNotBlank()) args.put(it) }
+        resolvedArgs.split("\\s+".toRegex()).forEach { if (it.isNotBlank()) args.put(it) }
     } else {
         // Fallback to simple -F mode based on basic fields
         var auth = ""

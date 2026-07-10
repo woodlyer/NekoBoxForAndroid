@@ -59,6 +59,12 @@
             app:key="serverInsecureConcurrency"
             app:title="@string/gost_insecure_concurrency"
             app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:dialogMessage="@string/gost_custom_args_summary"
+            app:icon="@drawable/ic_baseline_texture_24"
+            app:key="serverCustomArgs"
+            app:title="@string/gost_custom_args"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="sing-box server">

@@ -20,6 +20,7 @@ public class GostBean extends AbstractBean {
     public String certificates = "";
     public Integer insecureConcurrency = 0;
     public Boolean sUoT = false;
+    public String customConfigFileContent = "";
 
     @Override
     public void initializeDefaultValues() {
@@ -33,6 +34,7 @@ public class GostBean extends AbstractBean {
         if (certificates == null) certificates = "";
         if (insecureConcurrency == null) insecureConcurrency = 0;
         if (sUoT == null) sUoT = false;
+        if (customConfigFileContent == null) customConfigFileContent = "";
     }
 
     @Override
@@ -48,6 +50,7 @@ public class GostBean extends AbstractBean {
         output.writeString(certificates);
         output.writeInt(insecureConcurrency);
         output.writeBoolean(sUoT);
+        output.writeString(customConfigFileContent);
     }
 
     @Override
@@ -63,6 +66,7 @@ public class GostBean extends AbstractBean {
         certificates = input.readString();
         insecureConcurrency = input.readInt();
         sUoT = input.readBoolean();
+        customConfigFileContent = input.readString();
     }
 
     @NotNull

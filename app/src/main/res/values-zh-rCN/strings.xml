@@ -135,6 +135,8 @@
     <string name="action_hysteria">Hysteria</string>
     <string name="action_gost">Gost</string>
     <string name="action_custom_config">自定义配置</string>
+    <string name="gost_custom_args">自定义参数</string>
+    <string name="gost_custom_args_summary">传递给 gost 的自定义参数，例如 -F relay://...</string>
     <string name="action_import">从剪切板导入</string>
     <string name="action_import_file">从文件中导入</string>
     <string name="action_export_msg">导出成功!</string>

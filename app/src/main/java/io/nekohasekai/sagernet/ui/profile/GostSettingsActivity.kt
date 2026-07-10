@@ -24,6 +24,7 @@ class GostSettingsActivity : ProfileSettingsActivity<GostBean>() {
         DataStore.serverCertificates = certificates
         DataStore.serverHeaders = extraHeaders
         DataStore.serverInsecureConcurrency = insecureConcurrency
+        DataStore.serverCustomArgs = customArgs
         DataStore.profileCacheStore.putBoolean("sUoT", sUoT)
     }
 
@@ -38,6 +39,7 @@ class GostSettingsActivity : ProfileSettingsActivity<GostBean>() {
         certificates = DataStore.serverCertificates
         extraHeaders = DataStore.serverHeaders.replace("\r\n", "\n")
         insecureConcurrency = DataStore.serverInsecureConcurrency
+        customArgs = DataStore.serverCustomArgs
         sUoT = DataStore.profileCacheStore.getBoolean("sUoT")
     }
 

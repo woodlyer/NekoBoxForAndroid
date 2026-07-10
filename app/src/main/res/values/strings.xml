@@ -588,4 +588,8 @@
     <string name="action_custom_config">Custom Config</string>
     <string name="gost_insecure_concurrency">Insecure Concurrency</string>
     <string name="gost_insecure_concurrency_summary">Use N concurrent tunnel connections. Warning: Using it in an insecure way defeats its purpose.</string>
+    <string name="gost_custom_args">Custom Arguments</string>
+    <string name="gost_custom_args_summary">Custom parameters passed to gost, e.g. -F relay://...</string>
+    <string name="gost_custom_config_file">Custom Config File (JSON)</string>
+    <string name="gost_custom_config_file_summary">Enter the JSON content for kcp.json used by custom arguments.</string>
 </resources>
