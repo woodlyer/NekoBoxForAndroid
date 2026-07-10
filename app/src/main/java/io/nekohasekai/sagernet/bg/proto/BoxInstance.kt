@@ -88,7 +88,9 @@ abstract class BoxInstance(
 
                     is GostBean -> {
                         initPlugin("gost-plugin")
-                        pluginConfigs[port] = profile.type to bean.buildGostArgs(port)
+                        val args = bean.buildGostArgs(port)
+                        Logs.d("Gost args for port $port: $args")
+                        pluginConfigs[port] = profile.type to args
                     }
                 }
             }

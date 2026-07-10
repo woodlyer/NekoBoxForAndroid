@@ -5,60 +5,101 @@ import io.nekohasekai.sagernet.ktx.linkBuilder
 import io.nekohasekai.sagernet.ktx.toLink
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.json.JSONArray
-import org.json.JSONObject
+import java.net.InetAddress
+import java.net.URI
+import java.util.concurrent.Callable
+import java.util.concurrent.FutureTask
+import java.util.concurrent.TimeUnit
 
 fun parseGost(link: String): GostBean {
-    val url = link.replaceFirst("gost://", "https://").toHttpUrlOrNull()
-        ?: error("Invalid gost link: $link")
     return GostBean().apply {
-        serverAddress = url.host
-        serverPort = url.port
-        username = url.username
-        password = url.password
-        protocol = url.queryParameter("protocol") ?: "socks5"
-        name = url.fragment ?: ""
         initializeDefaultValues()
     }
 }
 
 fun GostBean.toUri(): String {
-    val builder = linkBuilder().host(finalAddress).port(finalPort)
-    if (username.isNotBlank()) builder.username(username)
-    if (password.isNotBlank()) builder.password(password)
-    builder.addQueryParameter("protocol", protocol)
+    val builder = linkBuilder().host("127.0.0.1").port(1080)
     if (name.isNotBlank()) builder.encodedFragment(name)
     return builder.toLink("gost", false)
 }
 
 fun GostBean.buildGostArgs(port: Int): String {
     val args = JSONArray()
-    // NekoBox expects a SOCKS5 inbound, and gost's default listener (without scheme) 
-    // is an auto-negotiation HTTP/SOCKS5 proxy, which perfectly satisfies it.
     args.put("-L")
     args.put("$LOCALHOST:$port")
 
     if (customArgs.isNotBlank()) {
         var resolvedArgs = customArgs
+        try {
+            val tokens = customArgs.split("\\s+".toRegex())
+            val fIndex = tokens.indexOf("-F")
+            if (fIndex != -1 && fIndex + 1 < tokens.size) {
+                val targetUrl = tokens[fIndex + 1].trim('"', '\'')
+                
+                // standard http replacement for URL parsing
+                val standardUrl = if (targetUrl.contains("://")) {
+                    targetUrl.replaceFirst("^[a-zA-Z0-9+.-]+://".toRegex(), "http://")
+                } else {
+                    "http://$targetUrl"
+                }
+                
+                val uri = URI(standardUrl)
+                val originalHost = uri.host
+                if (!originalHost.isNullOrBlank()) {
+                    // Try to resolve the hostname to IP using system resolver with a strict timeout
+                    val resolveTask = FutureTask(Callable {
+                        try {
+                            InetAddress.getByName(originalHost).hostAddress
+                        } catch (e: Exception) {
+                            null
+                        }
+                    })
+                    Thread(resolveTask).start()
+                    val resolvedIp = try {
+                        resolveTask.get(2, TimeUnit.SECONDS)
+                    } catch (e: Exception) {
+                        null
+                    }
+
+                    if (!resolvedIp.isNullOrBlank()) {
+                        // Set the serverAddress for NekoBox's direct routing bypass
+                        serverAddress = resolvedIp
+                        
+                        // Force add to the bypass routing lists so NekoBox will bypass it
+                        try {
+                            io.nekohasekai.sagernet.fmt.domainListDNSDirectForce.add("full:$resolvedIp")
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                        
+                        // Replace the host in command args to prevent Gost from doing DNS resolution
+                        resolvedArgs = resolvedArgs.replace(originalHost, resolvedIp)
+                    } else {
+                        // Fallback to original host for NekoBox's direct routing logic
+                        serverAddress = originalHost
+                        try {
+                            io.nekohasekai.sagernet.fmt.domainListDNSDirectForce.add("full:$originalHost")
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        val fileName = if (customConfigFileName.isNotBlank()) customConfigFileName else "kcp.json"
         if (customConfigFileContent.isNotBlank()) {
             try {
-                val file = java.io.File(io.nekohasekai.sagernet.SagerNet.application.filesDir, "kcp.json")
+                val file = java.io.File(io.nekohasekai.sagernet.SagerNet.application.filesDir, fileName)
                 file.writeText(customConfigFileContent)
-                resolvedArgs = resolvedArgs.replace("kcp.json", file.absolutePath)
+                resolvedArgs = resolvedArgs.replace(fileName, file.absolutePath)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
-        // Simple space split for custom args, you might want a proper shell parser later
         resolvedArgs.split("\\s+".toRegex()).forEach { if (it.isNotBlank()) args.put(it) }
-    } else {
-        // Fallback to simple -F mode based on basic fields
-        var auth = ""
-        if (username.isNotBlank() && password.isNotBlank()) {
-            auth = "$username:$password@"
-        }
-        val target = "$protocol://$auth$serverAddress:$serverPort"
-        args.put("-F")
-        args.put(target)
     }
 
     return args.toString()

@@ -11,29 +11,15 @@ import io.nekohasekai.sagernet.fmt.AbstractBean;
 import io.nekohasekai.sagernet.fmt.KryoConverters;
 
 public class GostBean extends AbstractBean {
-    public String protocol = "socks5";
-    public String username = "";
-    public String password = "";
     public String customArgs = "";
-    public String extraHeaders = "";
-    public String sni = "";
-    public String certificates = "";
-    public Integer insecureConcurrency = 0;
-    public Boolean sUoT = false;
+    public String customConfigFileName = "kcp.json";
     public String customConfigFileContent = "";
 
     @Override
     public void initializeDefaultValues() {
         super.initializeDefaultValues();
-        if (protocol == null) protocol = "socks5";
-        if (username == null) username = "";
-        if (password == null) password = "";
         if (customArgs == null) customArgs = "";
-        if (extraHeaders == null) extraHeaders = "";
-        if (sni == null) sni = "";
-        if (certificates == null) certificates = "";
-        if (insecureConcurrency == null) insecureConcurrency = 0;
-        if (sUoT == null) sUoT = false;
+        if (customConfigFileName == null) customConfigFileName = "kcp.json";
         if (customConfigFileContent == null) customConfigFileContent = "";
     }
 
@@ -41,15 +27,8 @@ public class GostBean extends AbstractBean {
     public void serialize(ByteBufferOutput output) {
         output.writeInt(1); // version
         super.serialize(output);
-        output.writeString(protocol);
-        output.writeString(username);
-        output.writeString(password);
         output.writeString(customArgs);
-        output.writeString(extraHeaders);
-        output.writeString(sni);
-        output.writeString(certificates);
-        output.writeInt(insecureConcurrency);
-        output.writeBoolean(sUoT);
+        output.writeString(customConfigFileName);
         output.writeString(customConfigFileContent);
     }
 
@@ -57,15 +36,8 @@ public class GostBean extends AbstractBean {
     public void deserialize(ByteBufferInput input) {
         int version = input.readInt();
         super.deserialize(input);
-        protocol = input.readString();
-        username = input.readString();
-        password = input.readString();
         customArgs = input.readString();
-        extraHeaders = input.readString();
-        sni = input.readString();
-        certificates = input.readString();
-        insecureConcurrency = input.readInt();
-        sUoT = input.readBoolean();
+        customConfigFileName = input.readString();
         customConfigFileContent = input.readString();
     }
 

@@ -15,32 +15,16 @@ class GostSettingsActivity : ProfileSettingsActivity<GostBean>() {
 
     override fun GostBean.init() {
         DataStore.profileName = name
-        DataStore.serverAddress = serverAddress
-        DataStore.serverPort = serverPort
-        DataStore.serverUsername = username
-        DataStore.serverPassword = password
-        DataStore.serverProtocol = protocol
-        DataStore.serverSNI = sni
-        DataStore.serverCertificates = certificates
-        DataStore.serverHeaders = extraHeaders
-        DataStore.serverInsecureConcurrency = insecureConcurrency
         DataStore.serverCustomArgs = customArgs
-        DataStore.profileCacheStore.putBoolean("sUoT", sUoT)
+        DataStore.serverCustomConfigFileName = customConfigFileName
+        DataStore.serverCustomConfigFileContent = customConfigFileContent
     }
 
     override fun GostBean.serialize() {
         name = DataStore.profileName
-        serverAddress = DataStore.serverAddress
-        serverPort = DataStore.serverPort
-        username = DataStore.serverUsername
-        password = DataStore.serverPassword
-        protocol = DataStore.serverProtocol
-        sni = DataStore.serverSNI
-        certificates = DataStore.serverCertificates
-        extraHeaders = DataStore.serverHeaders.replace("\r\n", "\n")
-        insecureConcurrency = DataStore.serverInsecureConcurrency
         customArgs = DataStore.serverCustomArgs
-        sUoT = DataStore.profileCacheStore.getBoolean("sUoT")
+        customConfigFileName = DataStore.serverCustomConfigFileName
+        customConfigFileContent = DataStore.serverCustomConfigFileContent
     }
 
     override fun PreferenceFragmentCompat.createPreferences(
@@ -48,15 +32,49 @@ class GostSettingsActivity : ProfileSettingsActivity<GostBean>() {
         rootKey: String?,
     ) {
         addPreferencesFromResource(R.xml.gost_preferences)
-        findPreference<EditTextPreference>(Key.SERVER_PORT)!!.apply {
-            setOnBindEditTextListener(EditTextPreferenceModifiers.Port)
+
+        val argsPref = findPreference<EditTextPreference>("serverCustomArgs")
+        val namePref = findPreference<EditTextPreference>("serverCustomConfigFileName")
+        val contentPref = findPreference<EditTextPreference>("serverCustomConfigFileContent")
+        val previewPref = findPreference<androidx.preference.Preference>("gostArgsPreview")
+
+        fun updatePreview() {
+            val customArgs = argsPref?.text ?: ""
+            val customFileName = namePref?.text ?: "kcp.json"
+            val customContent = contentPref?.text ?: ""
+
+            val argsList = mutableListOf<String>()
+            argsList.add("-L")
+            argsList.add("127.0.0.1:1080") // default placeholder port
+
+            if (customArgs.isNotBlank()) {
+                var resolvedArgs = customArgs
+                if (customContent.isNotBlank()) {
+                    resolvedArgs = resolvedArgs.replace(customFileName, "/data/user/0/moe.nb4a/files/$customFileName")
+                }
+                resolvedArgs.split("\\s+".toRegex()).forEach { if (it.isNotBlank()) argsList.add(it) }
+            }
+            previewPref?.summary = "gost " + argsList.joinToString(" ")
         }
-        findPreference<EditTextPreference>(Key.SERVER_PASSWORD)!!.apply {
-            summaryProvider = PasswordSummaryProvider
+
+        argsPref?.setOnPreferenceChangeListener { _, newValue ->
+            argsPref.text = newValue as? String
+            updatePreview()
+            true
         }
-        findPreference<EditTextPreference>(Key.SERVER_INSECURE_CONCURRENCY)!!.apply {
-            setOnBindEditTextListener(EditTextPreferenceModifiers.Number)
+        namePref?.setOnPreferenceChangeListener { _, newValue ->
+            namePref.text = newValue as? String
+            updatePreview()
+            true
         }
+        contentPref?.setOnPreferenceChangeListener { _, newValue ->
+            contentPref.text = newValue as? String
+            updatePreview()
+            true
+        }
+
+        // Initial preview update
+        updatePreview()
     }
 
     override fun finish() {
