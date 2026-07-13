@@ -21,6 +21,7 @@ import io.nekohasekai.sagernet.fmt.tuic.TuicBean
 import io.nekohasekai.sagernet.fmt.tuic.buildSingBoxOutboundTuicBean
 import io.nekohasekai.sagernet.fmt.v2ray.StandardV2RayBean
 import io.nekohasekai.sagernet.fmt.v2ray.buildSingBoxOutboundStandardV2RayBean
+import io.nekohasekai.sagernet.fmt.gost.GostBean
 import io.nekohasekai.sagernet.fmt.wireguard.WireGuardBean
 import io.nekohasekai.sagernet.fmt.wireguard.buildSingBoxOutboundWireguardBean
 import io.nekohasekai.sagernet.ktx.isIpAddress
@@ -627,6 +628,28 @@ fun buildConfig(
 
             if (!serverAddr.isIpAddress()) {
                 domainListDNSDirectForce.add("full:${serverAddr}")
+                route.rules.add(0, Rule_DefaultOptions().apply {
+                    domain = listOf(serverAddr)
+                    outbound = TAG_BYPASS
+                })
+                if (it is GostBean) {
+                    val resolvedIp = try {
+                        java.net.InetAddress.getByName(serverAddr).hostAddress
+                    } catch (e: java.lang.Exception) {
+                        null
+                    }
+                    if (!resolvedIp.isNullOrBlank()) {
+                        route.rules.add(0, Rule_DefaultOptions().apply {
+                            ip_cidr = listOf("$resolvedIp/32")
+                            outbound = TAG_BYPASS
+                        })
+                    }
+                }
+            } else {
+                route.rules.add(0, Rule_DefaultOptions().apply {
+                    ip_cidr = listOf("$serverAddr/32")
+                    outbound = TAG_BYPASS
+                })
             }
         }
 
